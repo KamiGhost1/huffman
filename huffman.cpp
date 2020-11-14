@@ -85,9 +85,10 @@ void Huffman::Wcounter(char ch) {
 }
 
 void Huffman::Encode(char *input ,char *output){
-    ofstream out;
+//    ofstream out;
     FILE *in = fopen(input,"r");
-    out.open(output);
+//    out.open(output,ofstream::binary);
+    FILE *out = fopen(output,"wb");
     if(!in){
         cout<<"file not found!!"<<endl;
         exit(3);
@@ -100,9 +101,11 @@ void Huffman::Encode(char *input ,char *output){
             cout<<"error, not found in gamma";
             exit(4);
         }
-        out<<gcode;
+//        out<<gcode;
+        fwrite(gcode.c_str(),sizeof(string),gcode.length(),out);
     }
-    out.close();
+//    out.close();
+    fclose(out);
     fclose(in);
 }
 
