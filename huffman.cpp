@@ -5,16 +5,35 @@
 #include "huffman.h"
 
 
-Huffman::Huffman() {}
+Huffman::Huffman() {
+    this->opener();
+}
+
+void Huffman::opener() {
+    cout<<endl;
+    cout<<"\t__    __      ______ "<<endl;
+    cout<<"\t| |  / /   / /______\\ \\   | | \\  / | |   | |"<<endl;
+    cout<<"\t| | / /    | |      | |   | |\\ \\/ /| |   | |"<<endl;
+    cout<<"\t| |/ /     | |      | |   | |  --  | |   | |"<<endl;
+    cout<<"\t| |\\ \\     | |      | |   | |      | |   | |"<<endl;
+    cout<<"\t| | \\ \\    | |      | |   | |      | |   | |"<<endl;
+    cout<<"\t| |  \\ \\   | |______| \\   | |      | |   | |"<<endl;
+    cout<<"\t| |   \\ \\  \\ \\______| \\\\  | |      | |   | |"<<endl;
+    cout<<"\n\nK@mi soft\ngithub.com:kamighost1\n"<<endl;
+}
 
 void Huffman::start(int C, char **V) {
     int mode;
     mode = this->testParam(C, V);
+    tree = new tree;
     reader(V[2]);
     sort(alpha.begin(),alpha.end());
     createHuffTree();
-    Encode(V[2],"check");
-    Decode("check","decode");
+    viewAlpha();
+    viewGamma();
+//    Encode(V[2],"check");
+//    Decode("check","decode");
+    cout<<"weight: "<<weight/8<<endl;
 }
 
 
@@ -62,9 +81,7 @@ void Huffman::Wcounter(char ch) {
 }
 
 void Huffman::Encode(char *input ,char *output){
-//    ofstream out;
     FILE *in = fopen(input,"r");
-//    out.open(output,ofstream::binary);
     FILE *out = fopen(output,"wb");
     if(!in){
         cout<<"file not found!!"<<endl;
@@ -78,16 +95,14 @@ void Huffman::Encode(char *input ,char *output){
             cout<<"error, not found in gamma";
             exit(4);
         }
-//        out<<gcode;
-        fwrite(gcode.c_str(),sizeof(string),gcode.length(),out);
+        this->writeBits(out,gcode);
     }
-//    out.close();
     fclose(out);
     fclose(in);
 }
 
 void Huffman::Decode(char *input, char *output) {
-    FILE *in = fopen(input,"r");
+    FILE *in = fopen(input,"rb");
     ofstream out;
     out.open(output);
     if(!in){
@@ -102,16 +117,13 @@ void Huffman::Decode(char *input, char *output) {
             exit(6);
         }
         code += ch;
-//        cout<<"check: "<<code<<endl;
         if(code[0]=='0' && code.length()==1){
             code = findGammaChar(code);
-//            cout<<"code: "<<code<<endl;
             out<<code;
             code = "";
         }else{
             if(ch=='1' && code.length()>=2){
                 code = findGammaChar(code);
-//                cout<<"code: "<<code<<endl;
                 out<<code;
                 code = "";
             }
@@ -122,20 +134,33 @@ void Huffman::Decode(char *input, char *output) {
 }
 
 void Huffman::createHuffTree() {
+    bool right = 0;
     string code="1";
     for(int i=alpha.size()-1;i>=0;i--){
-        if(i==alpha.size()-1){
-            gamma.push_back({alpha[i].second, "0"});
-        }else if(i>0){
-            gamma.push_back({alpha[i].second, (code + "1")});
-            code+=(0+'0');
+        if(right){
+            addRightBranch(alpha[i].second);
+            right = 0;
         }else{
-            gamma.push_back({alpha[i].second, (code + "1")});
+            addLeftBranch(alpha[i].second);
+            right = 1;
         }
     }
-    for(int i =0;i<gamma.size();i++){
-        cout<<gamma[i].first<<"  "<<gamma[i].second<<endl;
+}
+
+void Huffman::addLeftBranch(char sym) {
+    Tree *node;
+    string code = "0";
+    node = tree;
+    if(node->left){
+        while(node->left || node->right){
+            node = node->left;
+            code += "0"; //011110 01110 0110 010 0 11 101 1001 10001
+        }
     }
+
+}
+void Huffman::addRightBranch(char sym) {
+    cout<<"l"<<endl;
 }
 
 string Huffman::findGammaCode(char ch) {
@@ -169,7 +194,26 @@ void Huffman::reader(char *name) {
     fclose(f);
 }
 void Huffman::viewAlpha(){
+    cout<<"count simbols:"<<endl;
     for(int i = 0; i<alpha.size();i++){
-        cout<<alpha[i].first<<"  "<<alpha[i].second<<endl;
+        cout<<alpha[i].first<<"  '"<<alpha[i].second<<"'"<<endl;
     }
+    cout<<endl;
 };
+
+void Huffman::viewGamma(){
+    cout<<"Gamma alphabet:"<<endl;
+    for(int i =0;i<gamma.size();i++){
+        cout<<gamma[i].first<<"  '"<<gamma[i].second<<"'"<<endl;
+    }
+    cout<<endl;
+};
+
+void Huffman::writeBits(FILE *out, string msg){
+    char buf;
+    for(int i =0;i<msg.length();i++){
+        buf=msg[i];
+        fwrite(&buf,1,1,out);
+        weight++;
+    }
+}
