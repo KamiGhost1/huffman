@@ -2,34 +2,11 @@
 // Created by ghost on 14.11.2020.
 //
 
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <vector>
-#include <algorithm>
-#include <fstream>
+#include "huffman.h"
 
-using namespace std;
-class Huffman{
-public:
-    Huffman();
-    void start(int C,char **V);
-private:
-    vector<pair<int,char>> alpha;
-    vector<pair<char,string>> gamma;
-protected:
-    int testParam(int C,char **V);
-    void Wcounter(char ch);
-    void reader(char *name);
-    void viewAlpha();
-    void createHuffTree();
-    void Encode(char *input,char *output);
-    void Decode(char *input,char *output);
-    string findGammaCode(char ch);
-    char findGammaChar(string code);
-};
 
 Huffman::Huffman() {}
+
 void Huffman::start(int C, char **V) {
     int mode;
     mode = this->testParam(C, V);
@@ -196,10 +173,3 @@ void Huffman::viewAlpha(){
         cout<<alpha[i].first<<"  "<<alpha[i].second<<endl;
     }
 };
-
-
-int main(int argc, char **argv){
-    Huffman a;
-    a.start(argc, argv);
-    return 0;
-}
